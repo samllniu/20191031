@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  
+  <script src="./js/jquery.js"></script>
+  <script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+  <script src="http://libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+  <link href="http://libs.baidu.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet" />
+  <title>CRUD系统</title>
+  <script src="./js/ajax.js"></script>
+  <script src="./js/template-web.js"></script>
+  <script src="./js/nprogress.js"></script>
+  <link rel="stylesheet" href="./css/nprogress.css">
+</head>
+
+<body>
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal" id="addBtn">
+    添加用户
+  </button>
+
+  <!-- 第一个模态框-->
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="myModalLabel">用户添加</h4>
+        </div>
+        <div class="modal-body">
+          <!-- form表单 -->
+          <form method="POST" id="formtable">
+            <div class="form-group">
+              <label for="exampleInputEmail1">Email</label>
+              <input type="email" class="form-control" id="email" placeholder="Email">
+            </div>
+            <div class="form-group">
+              <label for="exampleInputPassword1">name</label>
+              <input type="name" class="form-control" id="name" placeholder="name">
+            </div>
+            <div class="form-group">
+              <label for="exampleInputPassword1">phone</label>
+              <input type="phone" class="form-control" id="phone" placeholder="phone">
+            </div>
+            <button type="submit" class="btn btn-default" id="btn">Submit</button>
+          </form>
+          <!-- form表单 -->
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 第一个模态框 -->
+
+
+
+
+  <!-- 第二个模态框-->
+
+  <div class="modal fade" id="mySecondeModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="myModalLabel">用户修改</h4>
+        </div>
+        <div class="modal-body" id="modalmodify">
+          <script type="text/html" id="modify">
+        <form id="submitmodify" data-id="{{_id}}">
+          <div class="form-group">
+            <label for="exampleInputEmail1">Email</label>
+            <input type="email" class="form-control" id="modify-email" placeholder="email" value="{{email}}">
+          </div>
+          <div class="form-group">
+            <label for="exampleInputPassword1">name</label>
+            <input type="name" class="form-control" id="modify-name" placeholder="name" value="{{name}}">
+          </div>
+          <div class="form-group">
+            <label for="exampleInputPassword1">phone</label>
+            <input type="phone" class="form-control" id="modify-phone" placeholder="phone" value="{{phone}}">
+          </div>
+          <button type="submit" class="btn btn-default" id="btn">Submit</button>
+        </form>
+        </script>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 第二个模态框-->
+
+  <table class="table" id="User">
+    <script type="text/html" id="UserId">
+                <table class="table table-hover">
+                        <thead>
+                          <tr>
+                            <th>姓名</th>
+                            <th>邮件</th>
+                            <th>电话</th>
+                            <th>操作一</th>
+                            <th>操作二</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+
+                                {{each user}}
+                           <td> {{$value.name}}</td>
+                           <td> {{$value.email}}</td>
+                           <td> {{$value.phone}}</td>
+                           <td><button  data-id="{{$value._id}}" class="btn btn-primary btn-lg edit" data-toggle="modal" data-target="#mySecondeModal">修改</button ></td>
+                            <td><button id="deleteBtn" value="{{$value._id}}" onclick="delkBtn(this.value)">删除</button></td>
+                        </tr>
+                                {{/each}}                   
+                        </tbody>
+                    </table>
+                </script>
+  </table>
+
+
+
+</body>
+
+
+<script>
+
+$(document).on('ajaxStart',function(){
+  NProgress.start();
+})
+
+$(document).on('ajaxComplete',function(){
+  NProgress.done();
+})
+
+  var user = document.getElementById('User');
+  //查询所有
+  ajax({
+    type: 'get',
+    url: 'http://localhost:80/user/getAllUser',
+    success: function (data) {
+      // console.log(data);
+      var html = template('UserId', { user: data });
+      // 将拼接好的html字符串显示在页面中
+      user.innerHTML = html;
+      //console.log(html)
+    }
+  })
+
+  //删除用户功能
+  function delkBtn(e) {
+    ajax({
+      type: 'get',
+      url: 'http://localhost:80/user/deleteOneUser',
+      data: {
+        id: e
+      },
+      success: function (data) {
+        alert('删除成功');
+        location.href = 'http://localhost/index.html';
+      }
+    })
+  }
+
+
+
+  //添加用户功能
+
+  var btn = document.getElementById('btn');
+  btn.onclick = function (e) {
+    e.preventDefault()
+    //获取表单内容
+    var name = document.getElementById('name').value
+    var email = document.getElementById('email').value
+    var phone = document.getElementById('phone').value
+    console.log('ok');
+    ajax({
+      type: 'post',
+      url: 'http://localhost:80/user/saveOneUser',
+      data: {
+        name: name, email: email, phone: phone,
+      },
+      success: function (data) {
+        console.log(data);
+        location.href = 'http://localhost/index.html';
+      }
+    });
+  }
+  //修改用户功能
+  //这里遇到一个小bug 我把 ".edit"写成了"edit" 少了一个.
+  $('#User').on('click', '.edit', function () {
+    var id = $(this).attr('data-id');
+    $.ajax({
+      type: 'get',
+      url: 'http://localhost:80/user/getOneUser',
+      data: {
+        id: id
+      },
+      success: function (res) {
+        console.log(res)
+        var html = template('modify', res);
+        //console.log(html);
+        $('#modalmodify').html(html);
+      }
+    })
+  })
+
+  $('#modalmodify').on('submit', '#submitmodify', function () {
+   var email= $('#modify-email').val();
+   var name= $('#modify-name').val();
+   var phone= $('#modify-phone').val();
+   var id=$(this).attr('data-id');
+    $.ajax({
+      type:'post',
+      url:'http://localhost:80/user/updateOneUser/',
+      data:{
+        _id:id,
+        email:email,
+        name:name,
+        phone:phone,
+      },
+      success:function(res){
+        alert('修改成功');
+        location.href = 'http://localhost/index.html';
+
+      },
+      error:function(res){
+       // alert('修改失败');
+        console.log(res);
+      }
+    })
+    return false
+  })
+</script>
+
+</html>
